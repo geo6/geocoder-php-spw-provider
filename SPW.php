@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -22,9 +23,9 @@ use Geocoder\Provider\Provider;
 use Geocoder\Query\GeocodeQuery;
 use Geocoder\Query\ReverseQuery;
 use Http\Client\HttpClient;
-use proj4php\Proj4php;
-use proj4php\Proj;
 use proj4php\Point;
+use proj4php\Proj;
+use proj4php\Proj4php;
 
 /**
  * @author Jonathan Beliën <jbe@geo6.be>
