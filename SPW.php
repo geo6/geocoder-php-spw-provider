@@ -124,6 +124,57 @@ final class SPW extends AbstractHttpProvider implements Provider
      */
     public function reverseQuery(ReverseQuery $query): Collection
     {
+        $coordinates = $query->getCoordinates();
+
+        $proj4 = new Proj4php();
+
+        $proj31370 = new Proj('EPSG:31370', $proj4);
+        $proj4326 = new Proj('EPSG:4326', $proj4);
+
+        $queryPointSrc = new Point($coordinates->getLongitude(), $coordinates->getLatitude(), $proj4326);
+        $queryCoordinates = $proj4->transform($proj31370, $queryPointSrc);
+
+        $url = sprintf(self::REVERSE_ENDPOINT_URL, $queryCoordinates->x, $queryCoordinates->y);
+        $json = $this->executeQuery($url);
+
+        $results = [];
+
+        $pointSrc = new Point($json->x, $json->y, $proj31370);
+        $coordinates = $proj4->transform($proj4326, $pointSrc);
+
+        $streetName = !empty($json->rue->nom) ? $json->rue->nom : null;
+        $number = !empty($json->num) ? $json->num : null;
+        $municipality = !empty($json->rue->commune) ? $json->rue->commune : null;
+        $postCode = !empty($json->rue->cps) ? implode(', ', $json->rue->cps) : null;
+        $subLocality = !empty($json->rue->localites) ? implode(', ', $json->rue->localites) : null;
+        $countryCode = 'BE';
+
+        $lowerLeftSrc = new Point($json->rue->xMin, $json->rue->yMin, $proj31370);
+        $lowerLeft = $proj4->transform($proj4326, $lowerLeftSrc);
+        $upperRightSrc = new Point($json->rue->xMax, $json->rue->yMax, $proj31370);
+        $upperRight = $proj4->transform($proj4326, $upperRightSrc);
+
+        $bounds = [
+          'west'  => $lowerLeft->x,
+          'south' => $lowerLeft->y,
+          'east'  => $upperRight->x,
+          'north' => $upperRight->y,
+        ];
+
+        $results[] = Address::createFromArray([
+            'providedBy'   => $this->getName(),
+            'latitude'     => $coordinates->y,
+            'longitude'    => $coordinates->x,
+            'streetNumber' => $number,
+            'streetName'   => $streetName,
+            'locality'     => $municipality,
+            'subLocality'  => $subLocality,
+            'postalCode'   => $postCode,
+            'countryCode'  => $countryCode,
+            'bounds'       => $bounds,
+        ]);
+
+        return new AddressCollection($results);
     }
 
     /**
