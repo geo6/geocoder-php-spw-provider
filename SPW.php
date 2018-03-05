@@ -82,7 +82,7 @@ final class SPW extends AbstractHttpProvider implements Provider
         $streetName = !empty($result->rue->nom) ? $result->rue->nom : null;
         $number = !empty($result->num) ? $result->num : null;
         $municipality = !empty($result->rue->commune) ? $result->rue->commune : null;
-        $postCode = !empty($result->rue->cps) ? (string)$result->rue->cps : null;
+        $postCode = !empty($result->rue->cps) ? (string) $result->rue->cps : null;
         $subLocality = !empty($result->rue->localites) ? $result->rue->localites : null;
         $countryCode = 'BE';
 
@@ -131,7 +131,7 @@ final class SPW extends AbstractHttpProvider implements Provider
 
         $result = $this->executeQuery('getNearestPosition', [
             'x' => $queryCoordinates->x,
-            'y' => $queryCoordinates->y
+            'y' => $queryCoordinates->y,
         ]);
 
         $results = [];
@@ -142,7 +142,7 @@ final class SPW extends AbstractHttpProvider implements Provider
         $streetName = !empty($result->rue->nom) ? $result->rue->nom : null;
         $number = !empty($result->num) ? $result->num : null;
         $municipality = !empty($result->rue->commune) ? $result->rue->commune : null;
-        $postCode = !empty($result->rue->cps) ? (string)$result->rue->cps : null;
+        $postCode = !empty($result->rue->cps) ? (string) $result->rue->cps : null;
         $subLocality = !empty($result->rue->localites) ? $result->rue->localites : null;
         $countryCode = 'BE';
 
@@ -195,7 +195,7 @@ final class SPW extends AbstractHttpProvider implements Provider
         // API error
         if (!isset($result->return)) {
             throw InvalidServerResponse::create(implode(', ', $data));
-        };
+        }
 
         return $result->return;
     }
