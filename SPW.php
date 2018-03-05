@@ -26,6 +26,7 @@ use Http\Client\HttpClient;
 use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
+use SoapClient;
 
 /**
  * @author Jonathan Beliën <jbe@geo6.be>
@@ -35,12 +36,7 @@ final class SPW extends AbstractHttpProvider implements Provider
     /**
      * @var string
      */
-    const GEOCODE_ENDPOINT_URL = 'http://geoservices.wallonie.be/geolocalisation/rest/searchPositionScored/%s/';
-
-    /**
-     * @var string
-     */
-    const REVERSE_ENDPOINT_URL = 'http://geoservices.wallonie.be/geolocalisation/rest/getNearestPosition/%F/%F/';
+    const WSDL_ENDPOINT_URL = 'http://geoservices.wallonie.be/geolocalisation/soap/?wsdl';
 
     /**
      * @param HttpClient $client an HTTP adapter
@@ -66,11 +62,10 @@ final class SPW extends AbstractHttpProvider implements Provider
             throw new InvalidArgument('Address cannot be empty.');
         }
 
-        $url = sprintf(self::GEOCODE_ENDPOINT_URL, urlencode($address));
-        $json = $this->executeQuery($url);
+        $result = $this->executeQuery('searchPositionScored', ['search' => $address]);
 
         // no result
-        if (is_null($json->x) && is_null($json->y)) {
+        if (!isset($result->x) || !isset($result->y)) {
             return new AddressCollection([]);
         }
 
@@ -81,19 +76,19 @@ final class SPW extends AbstractHttpProvider implements Provider
         $proj31370 = new Proj('EPSG:31370', $proj4);
         $proj4326 = new Proj('EPSG:4326', $proj4);
 
-        $pointSrc = new Point($json->x, $json->y, $proj31370);
+        $pointSrc = new Point($result->x, $result->y, $proj31370);
         $coordinates = $proj4->transform($proj4326, $pointSrc);
 
-        $streetName = !empty($json->rue->nom) ? $json->rue->nom : null;
-        $number = !empty($json->num) ? $json->num : null;
-        $municipality = !empty($json->rue->commune) ? $json->rue->commune : null;
-        $postCode = !empty($json->rue->cps) ? implode(', ', $json->rue->cps) : null;
-        $subLocality = !empty($json->rue->localites) ? implode(', ', $json->rue->localites) : null;
+        $streetName = !empty($result->rue->nom) ? $result->rue->nom : null;
+        $number = !empty($result->num) ? $result->num : null;
+        $municipality = !empty($result->rue->commune) ? $result->rue->commune : null;
+        $postCode = !empty($result->rue->cps) ? (string) $result->rue->cps : null;
+        $subLocality = !empty($result->rue->localites) ? $result->rue->localites : null;
         $countryCode = 'BE';
 
-        $lowerLeftSrc = new Point($json->rue->xMin, $json->rue->yMin, $proj31370);
+        $lowerLeftSrc = new Point($result->rue->xMin, $result->rue->yMin, $proj31370);
         $lowerLeft = $proj4->transform($proj4326, $lowerLeftSrc);
-        $upperRightSrc = new Point($json->rue->xMax, $json->rue->yMax, $proj31370);
+        $upperRightSrc = new Point($result->rue->xMax, $result->rue->yMax, $proj31370);
         $upperRight = $proj4->transform($proj4326, $upperRightSrc);
 
         $bounds = [
@@ -134,24 +129,26 @@ final class SPW extends AbstractHttpProvider implements Provider
         $queryPointSrc = new Point($coordinates->getLongitude(), $coordinates->getLatitude(), $proj4326);
         $queryCoordinates = $proj4->transform($proj31370, $queryPointSrc);
 
-        $url = sprintf(self::REVERSE_ENDPOINT_URL, $queryCoordinates->x, $queryCoordinates->y);
-        $json = $this->executeQuery($url);
+        $result = $this->executeQuery('getNearestPosition', [
+            'x' => $queryCoordinates->x,
+            'y' => $queryCoordinates->y,
+        ]);
 
         $results = [];
 
-        $pointSrc = new Point($json->x, $json->y, $proj31370);
+        $pointSrc = new Point($result->x, $result->y, $proj31370);
         $coordinates = $proj4->transform($proj4326, $pointSrc);
 
-        $streetName = !empty($json->rue->nom) ? $json->rue->nom : null;
-        $number = !empty($json->num) ? $json->num : null;
-        $municipality = !empty($json->rue->commune) ? $json->rue->commune : null;
-        $postCode = !empty($json->rue->cps) ? implode(', ', $json->rue->cps) : null;
-        $subLocality = !empty($json->rue->localites) ? implode(', ', $json->rue->localites) : null;
+        $streetName = !empty($result->rue->nom) ? $result->rue->nom : null;
+        $number = !empty($result->num) ? $result->num : null;
+        $municipality = !empty($result->rue->commune) ? $result->rue->commune : null;
+        $postCode = !empty($result->rue->cps) ? (string) $result->rue->cps : null;
+        $subLocality = !empty($result->rue->localites) ? $result->rue->localites : null;
         $countryCode = 'BE';
 
-        $lowerLeftSrc = new Point($json->rue->xMin, $json->rue->yMin, $proj31370);
+        $lowerLeftSrc = new Point($result->rue->xMin, $result->rue->yMin, $proj31370);
         $lowerLeft = $proj4->transform($proj4326, $lowerLeftSrc);
-        $upperRightSrc = new Point($json->rue->xMax, $json->rue->yMax, $proj31370);
+        $upperRightSrc = new Point($result->rue->xMax, $result->rue->yMax, $proj31370);
         $upperRight = $proj4->transform($proj4326, $upperRightSrc);
 
         $bounds = [
@@ -190,15 +187,16 @@ final class SPW extends AbstractHttpProvider implements Provider
      *
      * @return \stdClass
      */
-    private function executeQuery(string $url): \stdClass
+    private function executeQuery(string $function, array $data): \stdClass
     {
-        $content = $this->getUrlContents($url);
-        $json = json_decode($content);
+        $client = new SoapClient(self::WSDL_ENDPOINT_URL);
+        $result = $client->__soapCall($function, [$data]);
+
         // API error
-        if (!isset($json)) {
-            throw InvalidServerResponse::create($url);
+        if (!isset($result->return)) {
+            throw InvalidServerResponse::create(implode(', ', $data));
         }
 
-        return $json;
+        return $result->return;
     }
 }
