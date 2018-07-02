@@ -18,6 +18,7 @@ use Geocoder\Exception\InvalidServerResponse;
 use Geocoder\Exception\UnsupportedOperation;
 use Geocoder\Http\Provider\AbstractHttpProvider;
 use Geocoder\Model\Address;
+use Geocoder\Model\AddressBuilder;
 use Geocoder\Model\AddressCollection;
 use Geocoder\Provider\Provider;
 use Geocoder\Query\GeocodeQuery;
@@ -84,32 +85,27 @@ final class SPW extends AbstractHttpProvider implements Provider
         $municipality = !empty($result->rue->commune) ? $result->rue->commune : null;
         $postCode = !empty($result->rue->cps) ? (is_array($result->rue->cps) ? implode(', ', $result->rue->cps) : (string) $result->rue->cps) : null;
         $subLocality = !empty($result->rue->localites) ? (is_array($result->rue->localites) ? implode(', ', $result->rue->localites) : $result->rue->localites) : null;
-        $countryCode = 'BE';
 
         $lowerLeftSrc = new Point($result->rue->xMin, $result->rue->yMin, $proj31370);
         $lowerLeft = $proj4->transform($proj4326, $lowerLeftSrc);
         $upperRightSrc = new Point($result->rue->xMax, $result->rue->yMax, $proj31370);
         $upperRight = $proj4->transform($proj4326, $upperRightSrc);
 
-        $bounds = [
-          'west'  => $lowerLeft->x,
-          'south' => $lowerLeft->y,
-          'east'  => $upperRight->x,
-          'north' => $upperRight->y,
-        ];
+        $builder = new AddressBuilder($this->getName());
+        $builder->setCoordinates($coordinates->y, $coordinates->x)
+            ->setStreetNumber($number)
+            ->setStreetName($streetName)
+            ->setLocality($municipality)
+            ->setPostalCode($postCode)
+            ->setSubLocality($subLocality)
+            ->setBounds(
+                $lowerLeft->y,
+                $lowerLeft->x,
+                $upperRight->y,
+                $upperRight->x
+            );
 
-        $results[] = Address::createFromArray([
-            'providedBy'   => $this->getName(),
-            'latitude'     => $coordinates->y,
-            'longitude'    => $coordinates->x,
-            'streetNumber' => $number,
-            'streetName'   => $streetName,
-            'locality'     => $municipality,
-            'subLocality'  => $subLocality,
-            'postalCode'   => $postCode,
-            'countryCode'  => $countryCode,
-            'bounds'       => $bounds,
-        ]);
+        $results[] = $builder->build();
 
         return new AddressCollection($results);
     }
@@ -151,25 +147,21 @@ final class SPW extends AbstractHttpProvider implements Provider
         $upperRightSrc = new Point($result->rue->xMax, $result->rue->yMax, $proj31370);
         $upperRight = $proj4->transform($proj4326, $upperRightSrc);
 
-        $bounds = [
-          'west'  => $lowerLeft->x,
-          'south' => $lowerLeft->y,
-          'east'  => $upperRight->x,
-          'north' => $upperRight->y,
-        ];
+        $builder = new AddressBuilder($this->getName());
+        $builder->setCoordinates($coordinates->y, $coordinates->x)
+            ->setStreetNumber($number)
+            ->setStreetName($streetName)
+            ->setLocality($municipality)
+            ->setPostalCode($postCode)
+            ->setSubLocality($subLocality)
+            ->setBounds(
+                $lowerLeft->y,
+                $lowerLeft->x,
+                $upperRight->y,
+                $upperRight->x
+            );
 
-        $results[] = Address::createFromArray([
-            'providedBy'   => $this->getName(),
-            'latitude'     => $coordinates->y,
-            'longitude'    => $coordinates->x,
-            'streetNumber' => $number,
-            'streetName'   => $streetName,
-            'locality'     => $municipality,
-            'subLocality'  => $subLocality,
-            'postalCode'   => $postCode,
-            'countryCode'  => $countryCode,
-            'bounds'       => $bounds,
-        ]);
+        $results[] = $builder->build();
 
         return new AddressCollection($results);
     }
