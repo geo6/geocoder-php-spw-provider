@@ -37,7 +37,7 @@ final class SPW extends AbstractHttpProvider implements Provider
     /**
      * @var string
      */
-    const WSDL_ENDPOINT_URL = 'http://geoservices.wallonie.be/geolocalisation/soap/?wsdl';
+    const WSDL_ENDPOINT_URL = 'https://geoservices.wallonie.be/geolocalisation/soap/?wsdl';
 
     /**
      * @param HttpClient $client an HTTP adapter
