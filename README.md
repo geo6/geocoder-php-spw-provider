@@ -9,7 +9,7 @@
 
 This is the "Service Public de Wallonie" provider for the [Geocoder PHP](https://github.com/geocoder-php/Geocoder).
 
-**Coverage:** Wallonia (Belgium)  
+**Coverage:** Belgium  
 **API:** <http://geoservices.wallonie.be/geolocalisation/doc/ws/index.xhtml>
 
 ## Install
