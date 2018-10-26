@@ -1,5 +1,6 @@
 # :belgium: [Geocoder PHP](https://github.com/geocoder-php/Geocoder) "Service Public de Wallonie" provider
 
+[![Build Status](https://travis-ci.org/geo6/geocoder-php-spw-provider.svg?branch=master)](https://travis-ci.org/geo6/geocoder-php-spw-provider)
 [![Latest Stable Version](https://poser.pugx.org/geo6/geocoder-php-spw-provider/v/stable)](https://packagist.org/packages/geo6/geocoder-php-spw-provider)
 [![Total Downloads](https://poser.pugx.org/geo6/geocoder-php-spw-provider/downloads)](https://packagist.org/packages/geo6/geocoder-php-spw-provider)
 [![Monthly Downloads](https://poser.pugx.org/geo6/geocoder-php-spw-provider/d/monthly.png)](https://packagist.org/packages/geo6/geocoder-php-spw-provider)
