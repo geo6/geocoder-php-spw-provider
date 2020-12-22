@@ -140,7 +140,6 @@ final class SPW extends AbstractHttpProvider implements Provider
         $municipality = !empty($result->rue->commune) ? $result->rue->commune : null;
         $postCode = !empty($result->rue->cps) ? (is_array($result->rue->cps) ? implode(', ', $result->rue->cps) : (string) $result->rue->cps) : null;
         $subLocality = !empty($result->rue->localites) ? (is_array($result->rue->localites) ? implode(', ', $result->rue->localites) : $result->rue->localites) : null;
-        $countryCode = 'BE';
 
         $lowerLeftSrc = new Point($result->rue->xMin, $result->rue->yMin, $proj31370);
         $lowerLeft = $proj4->transform($proj4326, $lowerLeftSrc);

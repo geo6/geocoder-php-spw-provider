@@ -80,8 +80,8 @@ class SPWTest extends BaseTestCase
         /** @var \Geocoder\Model\Address $result */
         $result = $results->first();
         $this->assertInstanceOf('\Geocoder\Model\Address', $result);
-        $this->assertEquals(50.46144106856357, $result->getCoordinates()->getLatitude(), '', 0.00001);
-        $this->assertEquals(4.839749533657067, $result->getCoordinates()->getLongitude(), '', 0.00001);
+        $this->assertEqualsWithDelta(50.46144106856357, $result->getCoordinates()->getLatitude(), 0.00001);
+        $this->assertEqualsWithDelta(4.839749533657067, $result->getCoordinates()->getLongitude(), 0.00001);
         $this->assertEquals('83', $result->getStreetNumber());
         $this->assertEquals('CHAUSSÉE DE CHARLEROI', $result->getStreetName());
         $this->assertEquals('5000', $result->getPostalCode());
