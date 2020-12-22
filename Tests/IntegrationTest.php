@@ -33,7 +33,7 @@ class IntegrationTest extends ProviderIntegrationTest
 
     protected function createProvider(HttpClient $httpClient)
     {
-        return new SPW($httpClient, 'Geocoder PHP/SPW Provider/Integration Test');
+        return new SPW($httpClient);
     }
 
     protected function getCacheDir()

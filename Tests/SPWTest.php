@@ -24,39 +24,36 @@ class SPWTest extends BaseTestCase
         return __DIR__.'/.cached_responses';
     }
 
-    /**
-     * @expectedException \Geocoder\Exception\UnsupportedOperation
-     * @expectedExceptionMessage The SPW provider does not support IP addresses, only street addresses.
-     */
     public function testGeocodeWithLocalhostIPv4()
     {
-        $provider = new SPW($this->getMockedHttpClient(), 'Geocoder PHP/SPW Provider/SPW Test');
+        $this->expectException(\Geocoder\Exception\UnsupportedOperation::class);
+        $this->expectExceptionMessage('The SPW provider does not support IP addresses, only street addresses.');
+
+        $provider = new SPW($this->getMockedHttpClient());
         $provider->geocodeQuery(GeocodeQuery::create('127.0.0.1'));
     }
 
-    /**
-     * @expectedException \Geocoder\Exception\UnsupportedOperation
-     * @expectedExceptionMessage The SPW provider does not support IP addresses, only street addresses.
-     */
     public function testGeocodeWithLocalhostIPv6()
     {
-        $provider = new SPW($this->getMockedHttpClient(), 'Geocoder PHP/SPW Provider/SPW Test');
+        $this->expectException(\Geocoder\Exception\UnsupportedOperation::class);
+        $this->expectExceptionMessage('The SPW provider does not support IP addresses, only street addresses.');
+
+        $provider = new SPW($this->getMockedHttpClient());
         $provider->geocodeQuery(GeocodeQuery::create('::1'));
     }
 
-    /**
-     * @expectedException \Geocoder\Exception\UnsupportedOperation
-     * @expectedExceptionMessage The SPW provider does not support IP addresses, only street addresses.
-     */
     public function testGeocodeWithRealIPv6()
     {
-        $provider = new SPW($this->getMockedHttpClient(), 'Geocoder PHP/SPW Provider/SPW Test');
+        $this->expectException(\Geocoder\Exception\UnsupportedOperation::class);
+        $this->expectExceptionMessage('The SPW provider does not support IP addresses, only street addresses.');
+
+        $provider = new SPW($this->getMockedHttpClient());
         $provider->geocodeQuery(GeocodeQuery::create('::ffff:88.188.221.14'));
     }
 
     public function testReverseQuery()
     {
-        $provider = new SPW($this->getHttpClient(), 'Geocoder PHP/SPW Provider/SPW Test');
+        $provider = new SPW($this->getHttpClient());
         $results = $provider->reverseQuery(ReverseQuery::fromCoordinates(50.46144106856357, 4.839749533657067));
 
         $this->assertInstanceOf('Geocoder\Model\AddressCollection', $results);
@@ -74,7 +71,7 @@ class SPWTest extends BaseTestCase
 
     public function testGeocodeQuery()
     {
-        $provider = new SPW($this->getHttpClient(), 'Geocoder PHP/SPW Provider/SPW Test');
+        $provider = new SPW($this->getHttpClient());
         $results = $provider->geocodeQuery(GeocodeQuery::create('CHAUSSÉE DE CHARLEROI 83 5000 NAMUR'));
 
         $this->assertInstanceOf('Geocoder\Model\AddressCollection', $results);
