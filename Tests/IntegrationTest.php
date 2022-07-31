@@ -12,7 +12,7 @@ namespace Geocoder\Provider\SPW\Tests;
 
 use Geocoder\IntegrationTest\ProviderIntegrationTest;
 use Geocoder\Provider\SPW\SPW;
-use Http\Client\HttpClient;
+use Psr\Http\Client\ClientInterface;
 
 class IntegrationTest extends ProviderIntegrationTest
 {
@@ -31,7 +31,7 @@ class IntegrationTest extends ProviderIntegrationTest
         'testExceptions'                => 'SPW provider uses SOAP.',
     ];
 
-    protected function createProvider(HttpClient $httpClient)
+    protected function createProvider(ClientInterface $httpClient)
     {
         return new SPW($httpClient);
     }
