@@ -17,16 +17,15 @@ use Geocoder\Exception\InvalidArgument;
 use Geocoder\Exception\InvalidServerResponse;
 use Geocoder\Exception\UnsupportedOperation;
 use Geocoder\Http\Provider\AbstractHttpProvider;
-use Geocoder\Model\Address;
 use Geocoder\Model\AddressBuilder;
 use Geocoder\Model\AddressCollection;
 use Geocoder\Provider\Provider;
 use Geocoder\Query\GeocodeQuery;
 use Geocoder\Query\ReverseQuery;
-use Http\Client\HttpClient;
 use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
+use Psr\Http\Client\ClientInterface;
 use SoapClient;
 
 /**
@@ -40,9 +39,9 @@ final class SPW extends AbstractHttpProvider implements Provider
     const WSDL_ENDPOINT_URL = 'https://geoservices.wallonie.be/geolocalisation/soap/?wsdl';
 
     /**
-     * @param HttpClient $client an HTTP adapter
+     * @param ClientInterface $client an HTTP adapter
      */
-    public function __construct(HttpClient $client)
+    public function __construct(ClientInterface $client)
     {
         parent::__construct($client);
     }
