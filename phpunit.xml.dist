@@ -10,7 +10,7 @@
     </exclude>
   </coverage>
   <php>
-    <server name="USE_CACHED_RESPONSES" value="false"/>
+    <server name="USE_CACHED_RESPONSES" value="true"/>
   </php>
   <testsuites>
     <testsuite name="Geocoder Test Suite">
