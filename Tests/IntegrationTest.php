@@ -29,7 +29,6 @@ class IntegrationTest extends ProviderIntegrationTest
         'testGeocodeQueryWithNoResults' => 'SPW provider supports Belgium only (and does not support "en" locale).',
         'testReverseQuery'              => 'SPW provider supports Belgium only (and does not support "en" locale).',
         'testReverseQueryWithNoResults' => 'SPW provider supports Belgium only (and does not support "en" locale).',
-        'testExceptions'                => '',
     ];
 
     protected function createProvider(ClientInterface $httpClient)
