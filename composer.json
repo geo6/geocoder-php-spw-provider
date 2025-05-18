@@ -1,0 +1,47 @@
+{
+    "name": "geo6/geocoder-php-spw-provider",
+    "type": "library",
+    "description": "Geocoder Service Public de Wallonie adapter",
+    "keywords": [],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jonathan Beliën",
+            "email": "jbe@geo6.be"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "geocoder-php/common-http": "^4.0",
+        "proj4php/proj4php": "^2.0",
+        "willdurand/geocoder": "^4.0",
+        "symfony/http-client": "^7.2"
+    },
+    "provide": {
+        "geocoder-php/provider-implementation": "1.0"
+    },
+    "require-dev": {
+        "geocoder-php/provider-integration-tests": "^1.0",
+        "php-http/curl-client": "^2.0",
+        "php-http/message": "^1.0",
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Geocoder\\Provider\\SPW\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "prefer-stable": true,
+    "scripts": {
+        "test": "phpunit",
+        "test-ci": "phpunit --coverage-text --coverage-clover=coverage.clover"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}
