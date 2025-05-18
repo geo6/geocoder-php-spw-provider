@@ -65,10 +65,10 @@ final class SPW extends AbstractHttpProvider implements Provider
 
         $url = self::ENDPOINT_URL.'/geocode?'.http_build_query([
             'address' => $address,
-            'bbox' => true,
-            'geom' => true,
-            'crs' => 'EPSG:4326',
-            'lang' => $query->getLocale(),
+            'bbox'    => true,
+            'geom'    => true,
+            'crs'     => 'EPSG:4326',
+            'lang'    => $query->getLocale(),
         ]);
 
         $response = $this->getUrlContents($url);
@@ -101,11 +101,11 @@ final class SPW extends AbstractHttpProvider implements Provider
         }
 
         $url = self::ENDPOINT_URL.'/revgeocode?'.http_build_query([
-            'x' => $coordinates->getLongitude(),
-            'y' => $coordinates->getLatitude(),
+            'x'    => $coordinates->getLongitude(),
+            'y'    => $coordinates->getLatitude(),
             'bbox' => true,
             'geom' => true,
-            'crs' => 'EPSG:4326',
+            'crs'  => 'EPSG:4326',
             'lang' => $query->getLocale(),
         ]);
 
@@ -165,10 +165,10 @@ final class SPW extends AbstractHttpProvider implements Provider
             }
 
             if (isset($house['bbox'])) {
-                $builder->setBounds($house['bbox'][1],$house['bbox'][0],$house['bbox'][3],$house['bbox'][2]);
+                $builder->setBounds($house['bbox'][1], $house['bbox'][0], $house['bbox'][3], $house['bbox'][2]);
             }
         }
 
         return $builder->build();
-    }    
+    }
 }

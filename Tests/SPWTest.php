@@ -83,7 +83,7 @@ class SPWTest extends BaseTestCase
         $result = $results->first();
         $this->assertInstanceOf(Address::class, $result);
         $this->assertEqualsWithDelta(50.461370, $result->getCoordinates()->getLatitude(), 0.00001);
-        $this->assertEqualsWithDelta( 4.840830, $result->getCoordinates()->getLongitude(), 0.00001);
+        $this->assertEqualsWithDelta(4.840830, $result->getCoordinates()->getLongitude(), 0.00001);
         $this->assertEquals('83', $result->getStreetNumber());
         $this->assertEquals('Chaussée de Charleroi', $result->getStreetName());
         $this->assertEquals('5000', $result->getPostalCode());
