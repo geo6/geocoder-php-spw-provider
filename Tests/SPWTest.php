@@ -53,7 +53,7 @@ class SPWTest extends BaseTestCase
         $provider->geocodeQuery(GeocodeQuery::create('::ffff:88.188.221.14'));
     }
 
-    public function testReverseQuery()
+    public function testHouseReverseQuery()
     {
         $provider = new SPW($this->getHttpClient());
         $results = $provider->reverseQuery(ReverseQuery::fromCoordinates(50.461370, 4.840830));
@@ -71,7 +71,7 @@ class SPWTest extends BaseTestCase
         $this->assertEquals('Namur', $result->getSubLocality());
     }
 
-    public function testGeocodeQuery()
+    public function testHouseGeocodeQuery()
     {
         $provider = new SPW($this->getHttpClient());
         $results = $provider->geocodeQuery(GeocodeQuery::create('Chaussée de Charleroi 83 5000 Namur'));
@@ -87,7 +87,76 @@ class SPWTest extends BaseTestCase
         $this->assertEquals('83', $result->getStreetNumber());
         $this->assertEquals('Chaussée de Charleroi', $result->getStreetName());
         $this->assertEquals('5000', $result->getPostalCode());
-        $this->assertEquals('Namur', $result->getLocality());
         $this->assertEquals('Namur', $result->getSubLocality());
+        $this->assertEquals('Namur', $result->getLocality());
+    }
+
+    public function testStreetGeocodeQuery()
+    {
+        $provider = new SPW($this->getHttpClient());
+        $results = $provider->geocodeQuery(GeocodeQuery::create('Chaussée de Charleroi, Namur'));
+
+        $this->assertInstanceOf(AddressCollection::class, $results);
+        $this->assertNotEmpty($results);
+
+        /** @var \Geocoder\Model\Address $result */
+        $result = $results->first();
+        $this->assertInstanceOf(Address::class, $result);
+        $this->assertEqualsWithDelta(50.449540, $result->getCoordinates()->getLatitude(), 0.00001);
+        $this->assertEqualsWithDelta(4.818282, $result->getCoordinates()->getLongitude(), 0.00001);
+        $this->assertEquals('Chaussée de Charleroi', $result->getStreetName());
+        $this->assertEquals('Namur', $result->getLocality());
+    }
+
+    public function testCityGeocodeQuery()
+    {
+        $provider = new SPW($this->getHttpClient());
+        $results = $provider->geocodeQuery(GeocodeQuery::create('Namur'));
+
+        $this->assertInstanceOf(AddressCollection::class, $results);
+        $this->assertNotEmpty($results);
+
+        /** @var \Geocoder\Model\Address $result */
+        $result = $results->first();
+        $this->assertInstanceOf(Address::class, $result);
+        $this->assertEqualsWithDelta(50.466390, $result->getCoordinates()->getLatitude(), 0.00001);
+        $this->assertEqualsWithDelta(4.866114, $result->getCoordinates()->getLongitude(), 0.00001);
+        $this->assertEquals('Namur', $result->getLocality());
+    }
+
+    public function testGeocodeLocaleException()
+    {
+        $this->expectException(\Geocoder\Exception\InvalidArgument::class);
+        $this->expectExceptionMessage('Locale must be one of "fr", "nl", or "de".');
+
+        $provider = new SPW($this->getMockedHttpClient());
+        $provider->geocodeQuery(GeocodeQuery::create('Chaussée de Charleroi 83 5000 Namur')->withLocale('en'));
+    }
+
+    public function testReverseLocaleException()
+    {
+        $this->expectException(\Geocoder\Exception\InvalidArgument::class);
+        $this->expectExceptionMessage('Locale must be one of "fr", "nl", or "de".');
+
+        $provider = new SPW($this->getMockedHttpClient());
+        $provider->reverseQuery(ReverseQuery::fromCoordinates(50.461370, 4.840830)->withLocale('en'));
+    }
+
+    public function testGeocodeQueryWithNoResults()
+    {
+        $provider = new SPW($this->getHttpClient());
+        $results = $provider->geocodeQuery(GeocodeQuery::create('jsajhgsdkfjhsfkjhaldkadjaslgldasd'));
+
+        $this->assertInstanceOf(AddressCollection::class, $results);
+        $this->assertEmpty($results);
+    }
+
+    public function testReverseQueryWithNoResults()
+    {
+        $provider = new SPW($this->getHttpClient());
+        $results = $provider->reverseQuery(ReverseQuery::fromCoordinates(0, 0));
+
+        $this->assertInstanceOf(AddressCollection::class, $results);
+        $this->assertEmpty($results);
     }
 }
