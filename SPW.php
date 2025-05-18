@@ -55,10 +55,6 @@ final class SPW extends AbstractHttpProvider implements Provider
             throw new UnsupportedOperation('The SPW provider does not support IP addresses, only street addresses.');
         }
 
-        if (empty($address)) {
-            throw new InvalidArgument('Address cannot be empty.');
-        }
-
         if (!empty($locale) && !in_array($locale, ['fr', 'nl', 'de'])) {
             throw new InvalidArgument('Locale must be one of "fr", "nl", or "de".');
         }
@@ -77,10 +73,6 @@ final class SPW extends AbstractHttpProvider implements Provider
             throw InvalidServerResponse::create($url);
         }
 
-        if (count($json['candidates']) === 0) {
-            return new AddressCollection();
-        }
-
         $results = [];
         foreach ($json['candidates'] as $candidate) {
             $results[] = $this->createAddress($candidate);
@@ -95,6 +87,7 @@ final class SPW extends AbstractHttpProvider implements Provider
     public function reverseQuery(ReverseQuery $query): Collection
     {
         $coordinates = $query->getCoordinates();
+        $locale = $query->getLocale();
 
         if (!empty($locale) && !in_array($locale, ['fr', 'nl', 'de'])) {
             throw new InvalidArgument('Locale must be one of "fr", "nl", or "de".');
@@ -113,10 +106,6 @@ final class SPW extends AbstractHttpProvider implements Provider
         $json = json_decode($response, true);
         if (is_null($json) || !is_array($json)) {
             throw InvalidServerResponse::create($url);
-        }
-
-        if (count($json['candidates']) === 0) {
-            return new AddressCollection();
         }
 
         $results = [];
@@ -139,33 +128,44 @@ final class SPW extends AbstractHttpProvider implements Provider
     {
         $builder = new AddressBuilder($this->getName());
 
-        $city = $candidate['city'];
-        $zone = $candidate['zone'];
-        $street = $candidate['street'];
-        $house = $candidate['house'];
+        if (isset($candidate['city'])) {
+            $builder->setLocality($candidate['city']['name']);
 
-        if (isset($city)) {
-            $builder->setLocality($city['name']);
-        }
-
-        if (isset($zone)) {
-            $builder->setPostalCode($zone['ident']);
-            $builder->setSubLocality($zone['name']);
-        }
-
-        if (isset($street)) {
-            $builder->setStreetName($street['name']);
-        }
-
-        if (isset($house)) {
-            $builder->setStreetNumber($house['name']);
-
-            if (isset($house['geometry'])) {
-                $builder->setCoordinates($house['geometry']['coordinates'][1], $house['geometry']['coordinates'][0]);
+            if (isset($candidate['city']['geometry'])) {
+                $builder->setCoordinates($candidate['city']['geometry']['coordinates'][1], $candidate['city']['geometry']['coordinates'][0]);
             }
 
-            if (isset($house['bbox'])) {
-                $builder->setBounds($house['bbox'][1], $house['bbox'][0], $house['bbox'][3], $house['bbox'][2]);
+            if (isset($candidate['city']['bbox'])) {
+                $builder->setBounds($candidate['city']['bbox'][1], $candidate['city']['bbox'][0], $candidate['city']['bbox'][3], $candidate['city']['bbox'][2]);
+            }
+        }
+
+        if (isset($candidate['zone'])) {
+            $builder->setPostalCode($candidate['zone']['ident']);
+            $builder->setSubLocality($candidate['zone']['name']);
+        }
+
+        if (isset($candidate['street'])) {
+            $builder->setStreetName($candidate['street']['name']);
+
+            if (isset($candidate['street']['geometry'])) {
+                $builder->setCoordinates($candidate['street']['geometry']['coordinates'][1], $candidate['street']['geometry']['coordinates'][0]);
+            }
+
+            if (isset($candidate['street']['bbox'])) {
+                $builder->setBounds($candidate['street']['bbox'][1], $candidate['street']['bbox'][0], $candidate['street']['bbox'][3], $candidate['street']['bbox'][2]);
+            }
+        }
+
+        if (isset($candidate['house'])) {
+            $builder->setStreetNumber($candidate['house']['name']);
+
+            if (isset($candidate['house']['geometry'])) {
+                $builder->setCoordinates($candidate['house']['geometry']['coordinates'][1], $candidate['house']['geometry']['coordinates'][0]);
+            }
+
+            if (isset($candidate['house']['bbox'])) {
+                $builder->setBounds($candidate['house']['bbox'][1], $candidate['house']['bbox'][0], $candidate['house']['bbox'][3], $candidate['house']['bbox'][2]);
             }
         }
 
